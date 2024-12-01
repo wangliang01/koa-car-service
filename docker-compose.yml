@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # MongoDB服务
+  mongodb:
+    image: mongo:latest
+    container_name: car_service_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      # MongoDB环境变量配置
+      MONGO_INITDB_DATABASE: car_service
+    volumes:
+      # Linux系统下的数据持久化
+      - /data/mongodb:/data/db
+      # 初始化脚本
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    user: "1000:1000"  # 使用非root用户运行
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200m"
+        max-file: "10"
+
+# 不使用命名卷，直接使用主机目录

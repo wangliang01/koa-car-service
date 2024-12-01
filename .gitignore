@@ -1,0 +1,60 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# 环境配置
+.env
+.env.*
+!.env.example
+
+# 日志文件
+logs/
+*.log
+
+# 编辑器/IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# 测试覆盖率报告
+coverage/
+
+# 构建输出
+dist/
+build/
+out/
+
+# 临时文件
+tmp/
+temp/
+.tmp/
+
+# 上传文件
+uploads/
+public/uploads/
+
+# SSL证书
+ssl/
+*.pem
+*.key
+*.crt
+
+# 数据库
+*.sqlite
+*.db
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# 其他
+.cache/
+.local/
+*.pid
+*.seed
+*.pid.lock 

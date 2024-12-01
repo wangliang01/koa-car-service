@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  # MongoDB服务
+  mongodb:
+    image: mongo:latest
+    container_name: car_service_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      # MongoDB环境变量配置
+      MONGO_INITDB_DATABASE: car_service_dev
+    volumes:
+      # Windows系统下的数据持久化路径
+      - C:/wangliang/data/db:/data/db
+      # 初始化脚本
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+# 在Windows系统下，不需要显式声明外部卷，直接使用本地路径
