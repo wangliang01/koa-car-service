@@ -1,0 +1,73 @@
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+@authToken = {{login.response.body.data.token}}
+
+### 用户注册
+# @name register
+POST {{baseUrl}}/user/register
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "password123",
+    "role": "user"
+}
+
+### 用户登录
+# @name login
+POST {{baseUrl}}/user/login
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser",
+    "password": "password123"
+}
+
+### 用户相关操作
+# @name userOperations
+GET {{baseUrl}}/user/me
+Authorization: Bearer {{login.response.body.data.token}}
+
+### 更新用户信息
+PUT {{baseUrl}}/user/me
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: {{contentType}}
+
+{
+    "username": "updateduser",
+    "email": "updated@example.com"
+}
+
+### 密码操作
+# @name passwordOperations
+PUT {{baseUrl}}/user/password
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: {{contentType}}
+
+{
+    "currentPassword": "password123",
+    "newPassword": "newpassword123"
+}
+
+### 密码重置流程
+# @name passwordReset
+POST {{baseUrl}}/user/reset-password-request
+Content-Type: {{contentType}}
+
+{
+    "email": "test@example.com"
+}
+
+### 执行密码重置
+POST {{baseUrl}}/user/reset-password
+Content-Type: {{contentType}}
+
+{
+    "token": "reset-token-here",
+    "newPassword": "newpassword123"
+}
+
+### 账户删除
+DELETE {{baseUrl}}/user/me
+Authorization: Bearer {{login.response.body.data.token}}
