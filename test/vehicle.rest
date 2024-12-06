@@ -1,0 +1,168 @@
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+@authToken = {{login.response.body.data.token}}
+
+### 引用customer.rest文件中的请求
+@import = ./customer.rest
+
+### 用户登录
+# @name login
+POST {{baseUrl}}/user/login
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser",
+    "password": "password123"
+}
+
+### 创建新车辆1
+# @name createVehicle1
+POST {{baseUrl}}/vehicle
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "customerId": "674d9cbb72de0460dd7ca64a",
+    "brand": "本田",
+    "model": "雅阁",
+    "year": 2022,
+    "licensePlate": "京A12345",
+    "vin": "LHGCM56898A123456",
+    "mileage": 15000
+}
+
+### 创建新车辆2
+# @name createVehicle2
+POST {{baseUrl}}/vehicle
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "customerId": "674d9cbb72de0460dd7ca64a",
+    "brand": "丰田",
+    "model": "凯美瑞",
+    "year": 2023,
+    "licensePlate": "京B12345",
+    "vin": "JTDDH38J683123456",
+    "mileage": 8000
+}
+
+### 创建新车辆3
+# @name createVehicle3
+POST {{baseUrl}}/vehicle
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "customerId": "674d9cbb72de0460dd7ca64a",
+    "brand": "大众",
+    "model": "帕萨特",
+    "year": 2021,
+    "licensePlate": "京C12345",
+    "vin": "WVWZZZ3CZLE123456",
+    "mileage": 25000
+}
+
+### 获取车辆列表(不分页)
+# @name getVehicles
+GET {{baseUrl}}/vehicle
+Authorization: Bearer {{authToken}}
+
+### 获取车辆列表(分页)
+# @name getVehiclesByPage
+GET {{baseUrl}}/vehicle/page?page=1&size=10
+Authorization: Bearer {{authToken}}
+
+### 获取车辆详情
+# @name getVehicleById
+GET {{baseUrl}}/vehicle/{{createVehicle1.response.body.data._id}}
+Authorization: Bearer {{authToken}}
+
+### 更新车辆信息
+# @name updateVehicle
+PUT {{baseUrl}}/vehicle/{{createVehicle1.response.body.data._id}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "brand": "本田",
+    "model": "铃木",
+    "year": 2022,
+    "licensePlate": "京A12345",
+    "vin": "LHGCM56898A123456",
+    "mileage": 18000
+}
+
+### 删除车辆
+# @name deleteVehicle
+DELETE {{baseUrl}}/vehicle/{{createVehicle1.response.body.data._id}}
+Authorization: Bearer {{authToken}}
+
+
+
+# ### 获取车辆维修记录
+# # @name getVehicleRepairRecords
+# GET {{baseUrl}}/vehicle/{{createVehicle1.response.body.data._id}}/repairs
+# Authorization: Bearer {{authToken}}
+
+# ### 获取车辆预约记录
+# # @name getVehicleAppointments
+# GET {{baseUrl}}/vehicle/{{createVehicle1.response.body.data._id}}/appointments
+# Authorization: Bearer {{authToken}}
+
+### 更新车辆里程数
+# @name updateVehicleMileage
+PATCH {{baseUrl}}/vehicle/{{createVehicle2.response.body.data._id}}/mileage
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "mileage": 20000
+}
+
+### 批量导入车辆
+# @name batchImportVehicles
+POST {{baseUrl}}/vehicle/batch-import
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+[
+    {
+        "customerId": "674d9cbb72de0460dd7ca64a",
+        "brand": "奔驰",
+        "model": "C200L",
+        "year": 2023,
+        "licensePlate": "京D12345",
+        "vin": "WDDWF4KB6KR123456",
+        "mileage": 5000
+    },
+    {
+        "customerId": "674d9cbb72de0460dd7ca64a",
+        "brand": "宝马",
+        "model": "320Li",
+        "year": 2023,
+        "licensePlate": "京E12345",
+        "vin": "WBAJC1107LB123456",
+        "mileage": 6000
+    }
+]
+
+### 导出车辆数据
+# @name exportVehicles
+GET {{baseUrl}}/vehicle/export
+Authorization: Bearer {{authToken}}
+
+### 车辆统计信息
+# @name getVehicleStats
+GET {{baseUrl}}/vehicle/stats
+Authorization: Bearer {{authToken}}
+
+### 获取车辆品牌列表
+# @name getVehicleBrands
+GET {{baseUrl}}/vehicle/brands
+Authorization: Bearer {{authToken}}
+
+### 获取指定品牌的车型列表
+# @name getVehicleModels
+GET {{baseUrl}}/vehicle/models?brand=本田
+Authorization: Bearer {{authToken}} 
