@@ -19,10 +19,11 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "小李",
-    "phone": "13800138001", 
-    "email": "lirinnegan@example.com",
-    "address": "北京市朝阳区xxx街道"
+    "name": "漩涡鸣人",
+    "customerType": "personal",
+    "phone": "13800138001",
+    "email": "naruto@example.com",
+    "address": "北京市西城区xxx街道"
 }
 
 ### 创建新客户2
@@ -186,7 +187,7 @@ Authorization: Bearer {{authToken}}
 GET {{baseUrl}}/customer/{{createCustomer1.response.body.data._id}}/vehicles
 Authorization: Bearer {{authToken}}
 
-### 获取客户的所有预约记录
+### 获取��户的所有预约记录
 # @name getCustomerAppointments
 GET {{baseUrl}}/customer/{{createCustomer1.response.body.data._id}}/appointments
 Authorization: Bearer {{authToken}}

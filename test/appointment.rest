@@ -1,0 +1,122 @@
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+@authToken = {{login.response.body.data.token}}
+
+### 引用customer.rest和vehicle.rest文件中的请求
+@import = ./customer.rest
+@import = ./vehicle.rest
+
+### 用户登录
+# @name login
+POST {{baseUrl}}/user/login
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser",
+    "password": "password123"
+}
+
+### 创建新预约1
+# @name createAppointment1
+POST {{baseUrl}}/appointment
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "customerId": "6753a167e679a0f42c01f4ff",
+    "vehicleId": "6753bb26e679a0f42c01f693",
+    "appointmentDate": "{{$datetime iso8601 1 d}}", 
+    "serviceType": "maintenance",
+    "description": "更换机油和机油滤芯"
+}
+
+
+### 获取预约列表(不分页)
+# @name getAppointments
+GET {{baseUrl}}/appointment
+Authorization: Bearer {{authToken}}
+
+### 获取预约列表(分页)
+# @name getAppointmentsByPage
+GET {{baseUrl}}/appointment/page?page=1&size=10
+Authorization: Bearer {{authToken}}
+
+### 获取预约详情
+# @name getAppointmentById
+GET {{baseUrl}}/appointment/675502323601c01251b6faab
+Authorization: Bearer {{authToken}}
+
+### 更新预约信息
+# @name updateAppointment
+PUT {{baseUrl}}/appointment/675502323601c01251b6faab
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "appointmentDate": "{{$datetime iso8601 3 d}}",
+    "serviceType": "maintenance",
+    "description": "常规保养 + 轮胎更换"
+}
+
+### 更新预约状态
+# @name updateAppointmentStatus
+PATCH {{baseUrl}}/appointment/675502323601c01251b6faab/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "status": "confirmed"
+}
+
+### 取消预约
+# @name cancelAppointment
+PATCH {{baseUrl}}/appointment/675502323601c01251b6faab/cancel
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "cancelReason": "客户临时有事"
+}
+
+### 获取今日预约列表
+# @name getTodayAppointments
+GET {{baseUrl}}/appointment/today
+Authorization: Bearer {{authToken}}
+
+### 获取指定日期范围的预约
+# @name getAppointmentsByDateRange
+GET {{baseUrl}}/appointment/range?startDate={{$datetime iso8601}}&endDate={{$datetime iso8601 7 d}}
+Authorization: Bearer {{authToken}}
+
+### 获取预约统计信息
+# @name getAppointmentStats
+GET {{baseUrl}}/appointment/stats
+Authorization: Bearer {{authToken}}
+
+### 批量导入预约
+# @name batchImportAppointments
+POST {{baseUrl}}/appointment/batch-import
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+[
+    {
+        "customerId": "6753a167e679a0f42c01f4ff",
+        "vehicleId": "6753bb26e679a0f42c01f693",
+        "appointmentDate": "{{$datetime iso8601 4 d}}",
+        "serviceType": "inspection",
+        "description": "年检服务，配合年检"
+    },
+    {
+        "customerId": "6753a167e679a0f42c01f4ff",
+        "vehicleId": "6753bb26e679a0f42c01f694",
+        "appointmentDate": "{{$datetime iso8601 5 d}}",
+        "serviceType": "repair",
+        "description": "更换电瓶，电瓶亏电严重"
+    }
+]
+
+### 导出预约数据
+# @name exportAppointments
+GET {{baseUrl}}/appointment/export
+Authorization: Bearer {{authToken}}

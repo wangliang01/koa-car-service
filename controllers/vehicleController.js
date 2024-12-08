@@ -255,29 +255,96 @@ class VehicleController {
 
   /**
    * 导出车辆数据
+   * @param {Object} ctx - Koa上下文
    */
   async exportVehicles(ctx) {
+    // 查询条件
+    const { brand, licensePlate } = ctx.query
+    const query = {}
+    if (brand) query.brand = { $regex: brand, $options: 'i' }
+    if (licensePlate)
+      query.licensePlate = { $regex: licensePlate, $options: 'i' }
     try {
-      const vehicles = await Vehicle.find()
+      // 获取车辆数据并关联客户信息
+      const vehicles = await Vehicle.find(query)
         .populate('customer', 'name phone')
         .lean()
 
-      const ws = XLSX.utils.json_to_sheet(vehicles)
+      // 转换数据格式
+      const excelData = vehicles.map((vehicle) => ({
+        品牌: vehicle.brand,
+        型号: vehicle.model,
+        年份: vehicle.year,
+        车牌号: vehicle.licensePlate,
+        车架号: vehicle.vin,
+        里程数: vehicle.mileage,
+        客户姓名: vehicle.customer ? vehicle.customer.name : '',
+        客户电话: vehicle.customer ? vehicle.customer.phone : '',
+        创建时间: new Date(vehicle.createdAt).toLocaleString('zh-CN'),
+        更新时间: new Date(vehicle.updatedAt).toLocaleString('zh-CN')
+      }))
+
+      // 创建工作簿
       const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, 'Vehicles')
 
-      ctx.set(
-        'Content-Type',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      )
-      ctx.set('Content-Disposition', 'attachment; filename=vehicles.xlsx')
+      // 将数据转换为工作表
+      const ws = XLSX.utils.json_to_sheet(excelData, {
+        header: [
+          '品牌',
+          '型号',
+          '年份',
+          '车牌号',
+          '车架号',
+          '里程数',
+          '客户姓名',
+          '客户电话',
+          '创建时间',
+          '更新时间'
+        ]
+      })
 
-      const buf = XLSX.write(wb, {
+      // 设置列宽
+      ws['!cols'] = [
+        { wch: 15 }, // 品牌
+        { wch: 15 }, // 型号
+        { wch: 10 }, // 年份
+        { wch: 12 }, // 车牌号
+        { wch: 20 }, // 车架号
+        { wch: 10 }, // 里程数
+        { wch: 15 }, // 客户姓名
+        { wch: 15 }, // 客户电话
+        { wch: 20 }, // 创建时间
+        { wch: 20 } // 更新时间
+      ]
+
+      // 添加工作表到工作簿
+      XLSX.utils.book_append_sheet(wb, ws, '车辆列表')
+
+      // 生成二进制数据
+      const buffer = XLSX.write(wb, {
         type: 'buffer',
         bookType: 'xlsx',
+        bookSST: false,
         compression: true
       })
-      ctx.body = buf
+
+      // 生成文件名
+      const filename = `车辆列表_${new Date()
+        .toLocaleDateString('zh-CN')
+        .replace(/\//g, '-')}.xlsx`
+
+      // 设置响应头
+      ctx.set({
+        'Content-Type':
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(
+          filename
+        )}`,
+        'Content-Length': buffer.length
+      })
+
+      // 返回文件内容
+      ctx.body = buffer
     } catch (error) {
       logger.error('导出车辆数据失败:', error)
       response.error(ctx, '导出车辆数据失败', 500, error.message)
