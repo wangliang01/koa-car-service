@@ -62,7 +62,7 @@ Authorization: Bearer {{authToken}}
 
 ### 通过车牌号获取车辆信息
 # @name getVehicleByPlate
-GET {{baseUrl}}/repair-order/vehicle?licensePlate=京A12345
+GET {{baseUrl}}/repair-order/vehicle?licensePlate=京B98888
 Authorization: Bearer {{authToken}}
 
 ### 更新检查记录
@@ -155,16 +155,17 @@ Authorization: Bearer {{authToken}}
 
 ### 获取工单列表(分页)
 # @name getRepairOrders
-GET {{baseUrl}}/repair-order?page=1&size=10&status=repairing
-Authorization: Bearer {{authToken}}
+GET {{baseUrl}}/repair-order?page=1&size=10&status=
+Content-Type: {{contentType}}
+Authorization: Bearer {{login.response.body.data.token}}
 
 ### 获取工单详情
 # @name getRepairOrderById
-GET {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}
+GET {{baseUrl}}/repair-order/67564bd079c348ec90835a71
 Authorization: Bearer {{authToken}}
 
 ### 更新工单状态(完工)
-PATCH {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}/status
+PATCH {{baseUrl}}/repair-order/67564bd079c348ec90835a71/status
 Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
@@ -174,7 +175,7 @@ Authorization: Bearer {{authToken}}
 }
 
 ### 更新工单状态(交车)
-PATCH {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}/status
+PATCH {{baseUrl}}/repair-order/67564bd079c348ec90835a71/status
 Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
@@ -189,7 +190,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "licensePlate": "京A12345"
+    "licensePlate": "京B98888"
 }
 
 ### 检查车辆是否存在(通过VIN)
@@ -198,5 +199,5 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{authToken}}
 
 {
-    "vin": "JTDDH3FH503007888"
+    "vin": "JTDDH3FH503008888"
 } 

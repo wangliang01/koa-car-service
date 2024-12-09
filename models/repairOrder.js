@@ -37,6 +37,10 @@ const repairOrderSchema = new mongoose.Schema(
         price: { type: Number, required: true }, // 项目价格
         parts: [
           {
+            part: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: 'Part'
+            }, // 配件引用
             name: { type: String, required: true }, // 配件名称
             quantity: { type: Number, required: true }, // 数量
             price: { type: Number, required: true } // 单价
@@ -68,6 +72,10 @@ const repairOrderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     }, // 维修技师
+    inspector: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }, // 检查员
 
     // 时间记录
     estimatedCompletionTime: Date, // 预计完工时间

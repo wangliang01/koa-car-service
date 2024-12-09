@@ -72,7 +72,7 @@ class RepairOrderController {
           return response.error(ctx, '车辆不存在', 404)
         }
 
-        // 更���车辆里程数
+        // 更新车辆里程数
         if (vehicle.mileage && vehicle.mileage > vehicleDoc.mileage) {
           vehicleDoc.mileage = vehicle.mileage
           await vehicleDoc.save()
@@ -265,7 +265,8 @@ class RepairOrderController {
         .populate('vehicle')
         .populate('mechanic', 'name')
         .populate('inspector', 'name')
-        .populate('repairItems.parts.part')
+        // .populate('repairItems.parts.part') // 暂时注释掉这行，除非确实需要
+        .exec()
 
       if (!repairOrder) {
         return response.error(ctx, '维修工单不存在', 404)
