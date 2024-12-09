@@ -18,7 +18,7 @@ class AppointmentController {
         appointmentDate,
         serviceType,
         description,
-        notes
+        remark
       } = ctx.request.body
 
       // 验证客户和车辆是否存在
@@ -35,7 +35,7 @@ class AppointmentController {
         appointmentDate,
         serviceType,
         description,
-        notes
+        remark
       })
 
       await appointment.save()
@@ -88,12 +88,12 @@ class AppointmentController {
    */
   async updateAppointment(ctx) {
     try {
-      const { appointmentDate, serviceType, description, notes } =
+      const { appointmentDate, serviceType, description, remark } =
         ctx.request.body
 
       const appointment = await Appointment.findByIdAndUpdate(
         ctx.params.id,
-        { appointmentDate, serviceType, description, notes },
+        { appointmentDate, serviceType, description, remark },
         { new: true }
       )
 
@@ -403,7 +403,7 @@ class AppointmentController {
           appointmentDate,
           serviceType,
           description,
-          notes
+          remark
         } = appointment
 
         if (!customerMap.has(customerId)) {
@@ -419,7 +419,7 @@ class AppointmentController {
           appointmentDate,
           serviceType,
           description,
-          notes,
+          remark,
           status: 'pending'
         }
       })
@@ -490,7 +490,7 @@ class AppointmentController {
           return map[appointment.status] || appointment.status
         })(),
         服务描述: appointment.description || '',
-        备注: appointment.notes || '',
+        备注: appointment.remark || '',
         取消原因: appointment.cancelReason || '',
         创建时间: new Date(appointment.createdAt).toLocaleString('zh-CN'),
         更新时间: new Date(appointment.updatedAt).toLocaleString('zh-CN')

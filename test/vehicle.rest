@@ -165,4 +165,17 @@ Authorization: Bearer {{authToken}}
 ### 获取指定品牌的车型列表
 # @name getVehicleModels
 GET {{baseUrl}}/vehicle/models?brand=本田
-Authorization: Bearer {{authToken}} 
+Authorization: Bearer {{authToken}}
+
+### 批量删除车辆
+# @name batchDeleteVehicles
+POST {{baseUrl}}/vehicle/batch-delete
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "ids": [
+        "{{createVehicle2.response.body.data._id}}",
+        "{{createVehicle3.response.body.data._id}}"
+    ]
+} 

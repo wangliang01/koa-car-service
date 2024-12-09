@@ -1,0 +1,202 @@
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+@authToken = {{login.response.body.data.token}}
+
+### 用户登录
+# @name login
+POST {{baseUrl}}/user/login
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser",
+    "password": "password123"
+}
+
+### 创建维修工单(新客户)
+# @name createRepairOrderNew
+POST {{baseUrl}}/repair-order
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "isNewCustomer": true,
+    "customer": {
+        "name": "张三",
+        "phone": "13800138000",
+        "email": "zhangsan@example.com",
+        "address": "北京市朝阳区xxx街道"
+    },
+    "vehicle": {
+        "brand": "丰田",
+        "model": "凯美瑞",
+        "year": 2022,
+        "licensePlate": "京B98888",
+        "vin": "JTDDH3FH503008888",
+        "mileage": 15000
+    },
+    "faultDesc": "发动机怠速不稳，加速无力",
+    "remark": "客户要求尽快处理"
+}
+
+### 创建维修工单(老客户)
+# @name createRepairOrderExisting
+POST {{baseUrl}}/repair-order
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "isNewCustomer": false,
+    "customer": {
+        "_id": "6753a167e679a0f42c01f4ff",
+        "name": "李四",
+        "phone": "13900139000"
+    },
+    "vehicle": {
+        "_id": "6753bb26e679a0f42c01f693",
+        "licensePlate": "京A12345",
+        "mileage": 20000
+    },
+    "faultDesc": "定期保养",
+    "notes": "更换机油机滤"
+}
+
+### 通过车牌号获取车辆信息
+# @name getVehicleByPlate
+GET {{baseUrl}}/repair-order/vehicle?licensePlate=京A12345
+Authorization: Bearer {{authToken}}
+
+### 更新检查记录
+# @name updateInspection
+PATCH {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}/inspection
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "inspectionItems": [
+        {
+            "name": "发动机舱",
+            "result": "abnormal",
+            "remark": "机油泄漏"
+        },
+        {
+            "name": "轮胎",
+            "result": "normal",
+            "remark": "胎压正常"
+        },
+        {
+            "name": "制动系统",
+            "result": "normal",
+            "remark": "刹车片磨损正常"
+        }
+    ],
+    "customerItems": [
+        {
+            "name": "随车工具",
+            "quantity": 1,
+            "remark": "备胎、千斤顶"
+        },
+        {
+            "name": "行车记录仪",
+            "quantity": 1,
+            "remark": "正常工作"
+        }
+    ]
+}
+
+### 更新维修项目和报价
+# @name updateRepairItems
+PATCH {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}/repair-items
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "repairItems": [
+        {
+            "name": "更换机油",
+            "price": 200,
+            "parts": [
+                {
+                    "name": "机油",
+                    "quantity": 4,
+                    "price": 100
+                },
+                {
+                    "name": "机油滤芯",
+                    "quantity": 1,
+                    "price": 80
+                }
+            ]
+        },
+        {
+            "name": "清洗节气门",
+            "price": 300,
+            "parts": [
+                {
+                    "name": "清洗剂",
+                    "quantity": 1,
+                    "price": 100
+                }
+            ]
+        }
+    ],
+    "estimatedCompletionTime": "{{$datetime iso8601 1 d}}"
+}
+
+### 更新工单状态(分配技师)
+# @name assignMechanic
+PATCH {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "status": "repairing",
+    "mechanic": "64f5a7b8c9d0e1f2g3h4i5j8"
+}
+
+### 获取工单列表(分页)
+# @name getRepairOrders
+GET {{baseUrl}}/repair-order?page=1&size=10&status=repairing
+Authorization: Bearer {{authToken}}
+
+### 获取工单详情
+# @name getRepairOrderById
+GET {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}
+Authorization: Bearer {{authToken}}
+
+### 更新工单状态(完工)
+PATCH {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "status": "completed",
+    "actualCompletionTime": "{{$datetime iso8601}}"
+}
+
+### 更新工单状态(交车)
+PATCH {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "status": "delivered",
+    "deliveryTime": "{{$datetime iso8601}}"
+}
+
+### 检查车辆是否存在(通过车牌号)
+POST {{baseUrl}}/repair-order/isExist
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "licensePlate": "京A12345"
+}
+
+### 检查车辆是否存在(通过VIN)
+POST {{baseUrl}}/repair-order/isExist
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "vin": "JTDDH3FH503007888"
+} 

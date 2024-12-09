@@ -5,6 +5,8 @@ const logger = require('../utils/logger')
 const XLSX = require('xlsx')
 // const Appointment = require('../models/appointment')
 // const RepairRecord = require('../models/repairRecord')
+const mongoose = require('mongoose')
+const RepairOrder = require('../models/repairOrder')
 
 class VehicleController {
   /**
@@ -57,7 +59,7 @@ class VehicleController {
         .sort({ createdAt: -1 })
       response.success(ctx, vehicles)
     } catch (error) {
-      logger.error('获取车辆列表失败:', error)
+      logger.error('获取车���列表失败:', error)
       response.error(ctx, '获取车辆列表失败', 500, error.message)
     }
   }
@@ -157,7 +159,7 @@ class VehicleController {
         query.licensePlate = { $regex: licensePlate, $options: 'i' }
       }
 
-      // 计算跳过的文档数
+      // 计算跳过���文档数
       const skip = (current - 1) * size
 
       // 并行执行总数查询和分页数据查询
@@ -249,7 +251,7 @@ class VehicleController {
       response.success(ctx, result, '批量导入成功')
     } catch (error) {
       logger.error('批量导入失败:', error)
-      response.error(ctx, '批量导入失败', 500, error.message)
+      response.error(ctx, '���量导入失败', 500, error.message)
     }
   }
 
@@ -401,6 +403,67 @@ class VehicleController {
     } catch (error) {
       logger.error('获取车型列表失败:', error)
       response.error(ctx, '获取车型列表失败', 500, error.message)
+    }
+  }
+
+  /**
+   * 批量删除车辆
+   * @param {Object} ctx - Koa上下文
+   * @param {String} ctx.request.body.ids - 车辆ID数组
+   */
+  async batchDeleteVehicles(ctx) {
+    try {
+      const { ids } = ctx.request.body
+
+      // 参数验证
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return response.error(ctx, '请提供要删除的车辆ID列表', 400)
+      }
+
+      // 验证所有ID是否有效
+      if (!ids.every((id) => mongoose.Types.ObjectId.isValid(id))) {
+        return response.error(ctx, '存在无效的车辆ID', 400)
+      }
+
+      // 查找所有要删除的车辆
+      const vehicles = await Vehicle.find({ _id: { $in: ids } })
+      if (vehicles.length === 0) {
+        return response.error(ctx, '未找到要删除的车辆', 404)
+      }
+
+      // 检查是否有维修中的车辆
+      const repairingVehicles = await RepairOrder.find({
+        vehicle: { $in: ids },
+        status: { $in: ['pending', 'inspecting', 'quoted', 'repairing'] }
+      })
+
+      if (repairingVehicles.length > 0) {
+        return response.error(ctx, '存在维修中的车辆，无法删除', 400)
+      }
+
+      // 收集所有客户ID和车辆ID
+      const customerIds = [
+        ...new Set(vehicles.map((v) => v.customer.toString()))
+      ]
+      const vehicleIds = vehicles.map((v) => v._id)
+
+      // 从客户的vehicles数组中移除这些车辆
+      await Customer.updateMany(
+        { _id: { $in: customerIds } },
+        { $pull: { vehicles: { $in: vehicleIds } } }
+      )
+
+      // 删除车辆
+      const result = await Vehicle.deleteMany({ _id: { $in: ids } })
+
+      response.success(
+        ctx,
+        { deletedCount: result.deletedCount },
+        `成功删除${result.deletedCount}辆车`
+      )
+    } catch (error) {
+      logger.error('批量删除车辆失败:', error)
+      response.error(ctx, '批量删除车辆失败', 500, error.message)
     }
   }
 }

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const logger = require('../utils/logger');
+const mongoose = require('mongoose')
+const logger = require('../utils/logger')
 
 /**
  * 连接MongoDB数据库
@@ -10,12 +10,12 @@ const connectDB = async () => {
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true
-    });
-    logger.info(`MongoDB连接成功 [${process.env.NODE_ENV}环境]`);
+    })
+    logger.info(`MongoDB连接成功 [${process.env.NODE_ENV}环境]`)
   } catch (error) {
-    logger.error('MongoDB连接失败:', error.message);
-    process.exit(1);
+    logger.error('MongoDB连接失败:', error.message)
+    process.exit(1)
   }
-};
+}
 
-module.exports = connectDB; 
+module.exports = connectDB

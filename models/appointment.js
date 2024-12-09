@@ -30,9 +30,8 @@ const appointmentSchema = new mongoose.Schema(
         'other' // 其他
       ]
     },
-    description: {
-      type: String
-    },
+    description: String,
+    remark: String,
     status: {
       type: String,
       enum: [

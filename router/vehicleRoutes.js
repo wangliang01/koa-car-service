@@ -12,6 +12,7 @@ router.get('/stats', auth, vehicleController.getVehicleStats)
 router.get('/brands', auth, vehicleController.getVehicleBrands)
 router.get('/models', auth, vehicleController.getVehicleModels)
 router.post('/batch-import', auth, vehicleController.batchImportVehicles)
+router.post('/batch-delete', auth, vehicleController.batchDeleteVehicles)
 
 // 车辆ID相关路由
 // router.get('/:id/repairs', auth, vehicleController.getVehicleRepairRecords)
