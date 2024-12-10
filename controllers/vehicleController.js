@@ -59,7 +59,7 @@ class VehicleController {
         .sort({ createdAt: -1 })
       response.success(ctx, vehicles)
     } catch (error) {
-      logger.error('获取车���列表失败:', error)
+      logger.error('获取车辆列表失败:', error)
       response.error(ctx, '获取车辆列表失败', 500, error.message)
     }
   }
@@ -159,7 +159,7 @@ class VehicleController {
         query.licensePlate = { $regex: licensePlate, $options: 'i' }
       }
 
-      // 计算跳过���文档数
+      // 计算跳过文档数
       const skip = (current - 1) * size
 
       // 并行执行总数查询和分页数据查询
@@ -232,7 +232,7 @@ class VehicleController {
       }
       response.success(ctx, vehicle, '里程数更新成功')
     } catch (error) {
-      logger.error('更新里程数失败:', error)
+      logger.error('更���里程数失败:', error)
       response.error(ctx, '更新里程数失败', 500, error.message)
     }
   }
@@ -251,7 +251,7 @@ class VehicleController {
       response.success(ctx, result, '批量导入成功')
     } catch (error) {
       logger.error('批量导入失败:', error)
-      response.error(ctx, '���量导入失败', 500, error.message)
+      response.error(ctx, '批量导入失败', 500, error.message)
     }
   }
 
@@ -464,6 +464,44 @@ class VehicleController {
     } catch (error) {
       logger.error('批量删除车辆失败:', error)
       response.error(ctx, '批量删除车辆失败', 500, error.message)
+    }
+  }
+
+  /**
+   * 根据车牌号查询车辆信息
+   * @param {Object} ctx - Koa上下文
+   */
+  async getVehicleByPlate(ctx) {
+    try {
+      const { licensePlate } = ctx.query
+
+      // 参数验证
+      if (!licensePlate) {
+        return response.error(ctx, '请提供车牌号', 400)
+      }
+
+      // 车牌号格式验证（示例：简单的格式验证）
+      const platePattern =
+        /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领][A-Z][A-Z0-9]{5,6}$/
+      if (!platePattern.test(licensePlate)) {
+        return response.error(ctx, '无效的车牌号格式', 400)
+      }
+
+      // 查询车辆信息
+      const vehicle = await Vehicle.findOne({
+        licensePlate: licensePlate.trim()
+      })
+        .populate('customer', 'name phone email address')
+        .exec()
+
+      if (!vehicle) {
+        return response.success(ctx, null, '未找到车辆信息')
+      }
+
+      response.success(ctx, vehicle)
+    } catch (error) {
+      logger.error('根据车牌号查询车辆失败:', error)
+      response.error(ctx, '查询车辆信息失败', 500, error.message)
     }
   }
 }

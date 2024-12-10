@@ -316,8 +316,47 @@ class RepairOrderController {
         customer: vehicle.customer
       })
     } catch (error) {
-      logger.error('检查车辆是否存在失败:', error)
+      logger.error('检查车辆是��存在失败:', error)
       response.error(ctx, '检查车辆是否存在失败', 500, error.message)
+    }
+  }
+
+  /**
+   * 更新维修工单
+   * @param {Object} ctx - Koa上下文
+   */
+  async updateRepairOrder(ctx) {
+    try {
+      const { id } = ctx.params
+      const updateData = ctx.request.body
+
+      // 查找并更新工单
+      const repairOrder = await RepairOrder.findByIdAndUpdate(id, updateData, {
+        new: true,
+        runValidators: true
+      })
+        .populate('customer')
+        .populate('vehicle')
+        .populate('mechanic', 'name')
+        .populate('inspector', 'name')
+
+      if (!repairOrder) {
+        return response.error(ctx, '维修工单不存在', 404)
+      }
+
+      // 如果更新了里程数，同步更新车辆信息
+      if (updateData.mileage) {
+        const vehicle = await Vehicle.findById(repairOrder.vehicle)
+        if (vehicle && updateData.mileage > vehicle.mileage) {
+          vehicle.mileage = updateData.mileage
+          await vehicle.save()
+        }
+      }
+
+      response.success(ctx, repairOrder, '维修工单更新成功')
+    } catch (error) {
+      logger.error('更新维修工单失败:', error)
+      response.error(ctx, '更新维修工单失败', 500, error.message)
     }
   }
 }

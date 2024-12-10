@@ -200,4 +200,54 @@ Authorization: Bearer {{authToken}}
 
 {
     "vin": "JTDDH3FH503008888"
+}
+
+### 更新维修工单
+# @name updateRepairOrder
+PUT {{baseUrl}}/repair-order/{{createRepairOrderNew.response.body.data._id}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    
+    "faultDesc": "更新后的故障描述：发动机怠速不稳，加速无力，怀疑是火花塞问题",
+    "mileage": 15500,
+    "remark": "客户要求周五前完成维修",
+    "inspectionItems": [
+        {
+            "name": "发动机舱",
+            "result": "abnormal",
+            "remark": "火花塞磨损严重"
+        },
+        {
+            "name": "底盘",
+            "result": "normal",
+            "remark": "正常"
+        }
+    ],
+    "repairItems": [
+        {
+            "name": "更换火花塞",
+            "price": 200,
+            "parts": [
+                {
+                    "name": "NGK火花塞",
+                    "quantity": 4,
+                    "price": 150
+                }
+            ]
+        },
+        {
+            "name": "清洗节气门",
+            "price": 300,
+            "parts": [
+                {
+                    "name": "清洗剂",
+                    "quantity": 1,
+                    "price": 100
+                }
+            ]
+        }
+    ],
+    "estimatedCompletionTime": "{{$datetime iso8601 1 d}}"
 } 
